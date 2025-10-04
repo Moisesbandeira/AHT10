@@ -1,15 +1,12 @@
-
 #include "ssd1306.h"
 #include "hardware/gpio.h"
 #include "pico/stdlib.h"
 #include <string.h>
 #include "font6x8.h"
-
 // Endereço I2C do display
 static uint8_t buffer[SSD1306_WIDTH * SSD1306_HEIGHT / 8];
 // I2C instance
 static i2c_inst_t *ssd_i2c;
-
 // Envia comando ao display
 static void ssd1306_command(uint8_t cmd) {
     uint8_t buf[2] = {0x00, cmd};
@@ -25,7 +22,6 @@ static void ssd1306_data(uint8_t *data, size_t len) {
 // Inicializa o display
 void ssd1306_init(i2c_inst_t *i2c) {
     ssd_i2c = i2c;
-
     ssd1306_command(0xAE);
     ssd1306_command(0xA8); ssd1306_command(0x3F);
     ssd1306_command(0xD3); ssd1306_command(0x00);

@@ -1,6 +1,5 @@
 #include "lib/Aht10/aht10.h"
 
-
 // Função interna para enviar comando
 static bool aht10_write_command(AHT10_Handle *dev, uint8_t cmd, uint8_t arg1, uint8_t arg2) {
     uint8_t buf[3] = { cmd, arg1, arg2 };
