@@ -11,13 +11,19 @@ static i2c_inst_t *ssd_i2c;
 static void ssd1306_command(uint8_t cmd) {
     uint8_t buf[2] = {0x00, cmd};
     i2c_write_blocking(ssd_i2c, SSD1306_I2C_ADDR, buf, 2, false);
+    sleep_ms(1);  // Pequeno delay após comando
 }
 // Envia dados ao display
 static void ssd1306_data(uint8_t *data, size_t len) {
-    uint8_t buf[len + 1];
+    // Envia em chunks se necessário para evitar buffer overflow
+    uint8_t buf[129]; // 1 byte de controle + 128 bytes de dados
     buf[0] = 0x40;
-    memcpy(&buf[1], data, len);
-    i2c_write_blocking(ssd_i2c, SSD1306_I2C_ADDR, buf, len + 1, false);
+    
+    for (size_t i = 0; i < len; i += 128) {
+        size_t chunk_size = (len - i) < 128 ? (len - i) : 128;
+        memcpy(&buf[1], &data[i], chunk_size);
+        i2c_write_blocking(ssd_i2c, SSD1306_I2C_ADDR, buf, chunk_size + 1, false);
+    }
 }
 // Inicializa o display
 void ssd1306_init(i2c_inst_t *i2c) {
@@ -46,10 +52,11 @@ void ssd1306_clear(void) {
 // Atualiza o display com o conteúdo do buffer
 void ssd1306_show(void) {
     for (uint8_t page = 0; page < 8; page++) {
-        ssd1306_command(0xB0 + page);
-        ssd1306_command(0x00);
-        ssd1306_command(0x10);
+        ssd1306_command(0xB0 + page);     // Set page address
+        ssd1306_command(0x00);             // Set lower column address
+        ssd1306_command(0x10);             // Set higher column address
         ssd1306_data(&buffer[SSD1306_WIDTH * page], SSD1306_WIDTH);
+        sleep_ms(2);  // Pequeno delay entre pages
     }
 }
 // Desenha um pixel na posição (x, y) com a cor (true = branco, false = preto)

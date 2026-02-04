@@ -30,21 +30,23 @@ void delay_ms(uint32_t ms);
 int main() {
     stdio_init_all();
 
-    // Inicializa I2C sensor
+    // Inicializa I2C OLED
     i2c_init(I2C_PORT1, 400 * 1000); // 100 kHz
     gpio_set_function(I2C_SDA1, GPIO_FUNC_I2C);
     gpio_set_function(I2C_SCL1, GPIO_FUNC_I2C);
     gpio_pull_up(I2C_SDA1);
-    gpio_pull_up(I2C_SCL1);
+    gpio_pull_up(I2C_SCL1); 
 
-    // Inicializa I2C OLED
+    // Inicializa I2C  AHT10
     i2c_init(I2C_PORT0, 100000);
     gpio_set_function(I2C_SDA0, GPIO_FUNC_I2C);
     gpio_set_function(I2C_SCL0, GPIO_FUNC_I2C);
     gpio_pull_up(I2C_SDA0);
     gpio_pull_up(I2C_SCL0);
 
-    ssd1306_init(I2C_PORT0);
+    sleep_ms(100);  // Aguarda estabilização do I2C
+    ssd1306_init(I2C_PORT1);
+    sleep_ms(100);  // Aguarda inicialização do display
     ssd1306_clear();
     ssd1306_draw_string(32, 0, "Sensor AHT10");
     ssd1306_show();
@@ -125,15 +127,15 @@ int main() {
     }
 }
 
-// Função para escrita I2C
+// Função para escrita I2C (para o sensor AHT10 em I2C_PORT0)
 int i2c_write(uint8_t addr, const uint8_t *data, uint16_t len) {
-    int result = i2c_write_blocking(I2C_PORT1, addr, data, len, false);
+    int result = i2c_write_blocking(I2C_PORT0, addr, data, len, false);
     return result < 0 ? -1 : 0;
 }
 
-// Função para leitura I2C
+// Função para leitura I2C (para o sensor AHT10 em I2C_PORT0)
 int i2c_read(uint8_t addr, uint8_t *data, uint16_t len) {
-    int result = i2c_read_blocking(I2C_PORT1, addr, data, len, false);
+    int result = i2c_read_blocking(I2C_PORT0, addr, data, len, false);
     return result < 0 ? -1 : 0;
 }
 
